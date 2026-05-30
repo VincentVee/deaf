@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "181952892998",
+    "project_id": "deaf-a450c",
+    "storage_bucket": "deaf-a450c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:181952892998:android:f0a0d4f45e37879312fa47",
+        "android_client_info": {
+          "package_name": "com.deaf.deaf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_sb4cR7YNakPmNPOVTY_fnbaBtq8OD6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
