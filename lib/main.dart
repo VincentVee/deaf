@@ -13,16 +13,18 @@ import 'screens/admin/admin_dashboard.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Check if Firebase is already initialized
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    print('Firebase already initialized or error: $e');
-    // If already initialized, get the existing instance
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp();
-    }
-  }
+  // Initialize Firebase with web configuration
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyD4zI2k1c5p0aSqcgo4MReP-_G2jhGblRU",
+      authDomain: "deaf-a450c.firebaseapp.com",
+      projectId: "deaf-a450c",
+      storageBucket: "deaf-a450c.firebasestorage.app",
+      messagingSenderId: "181952892998",
+      appId: "1:181952892998:web:a7367a9889881f9912fa47",
+      measurementId: "G-B21YTWY8GC",
+    ),
+  );
 
   runApp(const DeafSmartApp());
 }

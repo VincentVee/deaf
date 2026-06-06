@@ -1,8 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
+}
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -13,7 +22,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        // ✅ Enable core library desugaring
         isCoreLibraryDesugaringEnabled = true
     }
 
@@ -30,9 +38,30 @@ android {
         multiDexEnabled = true
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
@@ -41,30 +70,6 @@ flutter {
     source = "../.."
 }
 
-// ✅ IMPORTANT: Use coreLibraryDesugaring, NOT implementation
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
-
-    // ✅ Force Gradle to pull the Flutter embedding dependency into the classpath
-}
-
-// ✅ DYNAMIC FALLBACK HOOK:
-// Listens for the build task to be added by the Flutter plugin dynamically,
-// then injects the APK copier to satisfy the high-level Flutter runner.
-tasks.whenTaskAdded {
-    if (name == "assembleDebug") {
-        doLast {
-            val srcFile = file("${project.layout.buildDirectory.get()}/outputs/apk/debug/app-debug.apk")
-            val dstDir = file("${project.rootDir}/../build/app/outputs/flutter-apk")
-
-            if (srcFile.exists()) {
-                mkdir(dstDir)
-                srcFile.copyTo(file("$dstDir/app-debug.apk"), overwrite = true)
-                println("====== ✅ Successfully matched APK path for Flutter Tooling ======")
-            } else {
-                println("====== ⚠️ Source APK not found at: ${srcFile.absolutePath} ======")
-            }
-        }
-    }
 }
